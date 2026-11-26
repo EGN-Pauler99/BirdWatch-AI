@@ -1,0 +1,468 @@
+{
+    "connections": [
+        {
+            "in_id": "{68b57a51-0e1c-4279-9621-25d7c7f4c09b}",
+            "in_index": 0,
+            "out_id": "{b3147653-2a42-40a7-9c30-7b1cf4a4c4a7}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{8934d5d7-6382-4dac-b065-2ba94f367462}",
+            "in_index": 0,
+            "out_id": "{5cdee603-fa4c-42e5-b0fc-5eee09c35c68}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{5cdee603-fa4c-42e5-b0fc-5eee09c35c68}",
+            "in_index": 0,
+            "out_id": "{169b2f91-6660-463b-926d-3686ee643bfc}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{5d101f2f-89fe-4dc8-8350-63d0c36a6588}",
+            "in_index": 0,
+            "out_id": "{169b2f91-6660-463b-926d-3686ee643bfc}",
+            "out_index": 1
+        },
+        {
+            "in_id": "{cec155f6-ccd2-4152-9b37-cebb1ffb7fb7}",
+            "in_index": 0,
+            "out_id": "{11b383b5-ca79-46d8-b382-f0aef43621e9}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{455e15a2-58b0-4c1c-9fde-ccbf1cf3e7dc}",
+            "in_index": 0,
+            "out_id": "{5d101f2f-89fe-4dc8-8350-63d0c36a6588}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{a5e752cd-f95b-40ed-bf0d-fef7955ac3a2}",
+            "in_index": 0,
+            "out_id": "{cec155f6-ccd2-4152-9b37-cebb1ffb7fb7}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{11b383b5-ca79-46d8-b382-f0aef43621e9}",
+            "in_index": 0,
+            "out_id": "{b3147653-2a42-40a7-9c30-7b1cf4a4c4a7}",
+            "out_index": 0
+        },
+        {
+            "converter": {
+                "in": {
+                    "id": "flow_data",
+                    "name": "FlowData"
+                },
+                "out": {
+                    "id": "flow1_data",
+                    "name": "Flow1Data"
+                }
+            },
+            "in_id": "{169b2f91-6660-463b-926d-3686ee643bfc}",
+            "in_index": 0,
+            "out_id": "{b3147653-2a42-40a7-9c30-7b1cf4a4c4a7}",
+            "out_index": 1
+        },
+        {
+            "in_id": "{b3147653-2a42-40a7-9c30-7b1cf4a4c4a7}",
+            "in_index": 0,
+            "out_id": "{cec155f6-ccd2-4152-9b37-cebb1ffb7fb7}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{2d3b6b7c-5b4b-48d0-8093-37ee4a20b01d}",
+            "in_index": 0,
+            "out_id": "{68b57a51-0e1c-4279-9621-25d7c7f4c09b}",
+            "out_index": 0
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{5d101f2f-89fe-4dc8-8350-63d0c36a6588}",
+            "model": {
+                "data": {
+                    "console": "",
+                    "height": 430,
+                    "js_code": "// ====================================\n// NO TARGET BIRD\n// CiRA CORE -> MQTT\n// ====================================\n\npayload.topic = \"birdtrack/esp32/device01/detection\";\n\npayload.detected = false;\npayload.name = \"none\";\npayload.action = \"NO_BIRD\";\n\npayload.debug_bird = {\n\tdetected: false,\n\taction: \"NO_BIRD\"\n};\n\nprint(\"[BIRD] No target bird\");\nprint(\"[MQTT] Publish NO_BIRD\");\n\npayload;",
+                    "widget_state": {
+                        "editor_setting": {
+                            "autoComplete": {
+                                "caseSensitivity": true,
+                                "enable": true,
+                                "threshold": 3
+                            },
+                            "indent": {
+                                "enable": true
+                            },
+                            "theme": "Material Dark",
+                            "whitespace": {
+                                "enable": false,
+                                "size": 2
+                            }
+                        },
+                        "splt0": 338,
+                        "splt1": 85
+                    },
+                    "width": 550
+                },
+                "name": "JavaScript",
+                "node_enable": true
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 1197,
+                "y": 722
+            }
+        },
+        {
+            "id": "{5cdee603-fa4c-42e5-b0fc-5eee09c35c68}",
+            "model": {
+                "data": {
+                    "console": "",
+                    "height": 430,
+                    "js_code": "// ============================================\n// BIRD DETECTION - CiRA CORE DEEPDETECT\n// ============================================\n\nvar birdList = [\n\t\"pigeon\",\n\t\"pigeonscoop\",\n\t\"dove\",\n\t\"wren\"\n];\n\n// --------------------------------------------\n// อ่านข้อมูลจาก DeepDetect\n// --------------------------------------------\n\nvar deep = payload.DeepDetect || {};\n\nvar objects = deep.objects || [];\nvar counts = deep.counts || {};\n\n// --------------------------------------------\n// ตรวจชื่อนก\n// --------------------------------------------\n\nvar detected = false;\nvar birdName = \"none\";\nvar confidence = 0;\n\n// ตรวจจาก objects\nfor (var i = 0; i < objects.length; i++) {\n\n\tvar obj = objects[i];\n\n\tvar rawName = obj.name || \"\";\n\n\tvar normalizedName = String(rawName)\n\t\t.toLowerCase()\n\t\t.trim();\n\n\tvar objConfidence = Number(obj.confidence || 0);\n\n\tif (birdList.indexOf(normalizedName) !== -1) {\n\n\t\tdetected = true;\n\t\tbirdName = normalizedName;\n\t\tconfidence = objConfidence;\n\n\t\tbreak;\n\t}\n}\n\n// --------------------------------------------\n// ตรวจจาก counts สำรอง\n// กรณี objects ไม่มีข้อมูล\n// --------------------------------------------\n\nif (!detected && objects.length === 0) {\n\n\tfor (var key in counts) {\n\n\t\tif (counts.hasOwnProperty(key)) {\n\n\t\t\tvar normalizedKey = String(key)\n\t\t\t\t.toLowerCase()\n\t\t\t\t.trim();\n\n\t\t\tvar count = Number(counts[key] || 0);\n\n\t\t\tif (\n\t\t\t\tbirdList.indexOf(normalizedKey) !== -1 &&\n\t\t\t\tcount > 0\n\t\t\t) {\n\n\t\t\t\tdetected = true;\n\t\t\t\tbirdName = normalizedKey;\n\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n\t}\n}\n\n// --------------------------------------------\n// ส่งข้อมูลต่อ\n// --------------------------------------------\n\npayload.topic = \"birdtrack/esp32/device01/detection\";\n\npayload.detected = detected;\npayload.name = birdName;\npayload.confidence = confidence;\n\nif (detected) {\n\n\tpayload.action = \"BIRD_DETECTED\";\n\n} else {\n\n\tpayload.action = \"NO_BIRD\";\n}\n\n// --------------------------------------------\n// DEBUG\n// --------------------------------------------\n\npayload.debug_bird = {\n\tdeepdetect_count: deep.count || 0,\n\tobjects_count: objects.length,\n\tbird_name: birdName,\n\tconfidence: confidence,\n\tdetected: detected,\n\taction: payload.action\n};\n\nprint(\"[DEEPDETECT] Objects: \" + objects.length);\nprint(\"[BIRD] Name: \" + birdName);\nprint(\"[BIRD] Detected: \" + detected);\nprint(\"[BIRD] Confidence: \" + confidence);\nprint(\"[ACTION] \" + payload.action);\n\npayload;",
+                    "widget_state": {
+                        "editor_setting": {
+                            "autoComplete": {
+                                "caseSensitivity": true,
+                                "enable": false,
+                                "threshold": 3
+                            },
+                            "indent": {
+                                "enable": true
+                            },
+                            "theme": "Material Dark",
+                            "whitespace": {
+                                "enable": false,
+                                "size": 2
+                            }
+                        },
+                        "splt0": 338,
+                        "splt1": 85
+                    },
+                    "width": 550
+                },
+                "name": "JavaScript",
+                "node_enable": true
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 1178,
+                "y": 570
+            }
+        },
+        {
+            "id": "{455e15a2-58b0-4c1c-9fde-ccbf1cf3e7dc}",
+            "model": {
+                "mqtt_pub": {
+                    "cert_file": "-",
+                    "host": "broker.emqx.io",
+                    "is_use_cert": false,
+                    "is_use_ssl": false,
+                    "pass": "123456789",
+                    "port": 1883,
+                    "qos": 0,
+                    "send_img": false,
+                    "topic": "birdtrack/esp32/device01/cmd/speaker",
+                    "user": "bird"
+                },
+                "name": "MqttPub",
+                "node_enable": true
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 1387,
+                "y": 741
+            }
+        },
+        {
+            "id": "{b3147653-2a42-40a7-9c30-7b1cf4a4c4a7}",
+            "model": {
+                "data": {
+                    "curr_tap": 0,
+                    "draw_roi": true,
+                    "enable_tracking": false,
+                    "font_scale": 1.2,
+                    "font_thickness": 2,
+                    "frame_buffer": 5,
+                    "is_roi_polygon": false,
+                    "map_det_cfgs": [
+                        {
+                            "backend_name": "CUDA",
+                            "config_name": "1",
+                            "config_path": "C:/Users/bank1/OneDrive/Desktop/BirdDetect/BirdDetect/นก/birdtrack/Birddetec"
+                        },
+                        {
+                            "backend_name": "CUDA",
+                            "config_name": "2",
+                            "config_path": "C:/Users/bank1/OneDrive/Desktop/นกNew/นก/นก/นก/train/nextgenbird"
+                        }
+                    ],
+                    "max_dist": 150,
+                    "nms": 0.4,
+                    "rect_thickness": 2,
+                    "result_drawing": true,
+                    "roi_h": 50000,
+                    "roi_polygon": {
+                    },
+                    "roi_w": 50000,
+                    "roi_x": 0,
+                    "roi_y": 0,
+                    "show_confidence": true,
+                    "text_drawing": true,
+                    "this_config_name": "2",
+                    "thresh": 50,
+                    "txt_offset": 5
+                },
+                "name": "DeepDetect ",
+                "node_enable": true,
+                "obj_colors": {
+                    "array": [
+                    ]
+                }
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 756,
+                "y": 315
+            }
+        },
+        {
+            "id": "{169b2f91-6660-463b-926d-3686ee643bfc}",
+            "model": {
+                "data": {
+                    "console": "",
+                    "height": 430,
+                    "js_code": "ifelse = (payload.a == 0)",
+                    "widget_state": {
+                        "editor_setting": {
+                            "autoComplete": {
+                                "caseSensitivity": true,
+                                "enable": true,
+                                "threshold": 3
+                            },
+                            "indent": {
+                                "enable": true
+                            },
+                            "theme": "Material Dark",
+                            "whitespace": {
+                                "enable": false,
+                                "size": 2
+                            }
+                        },
+                        "splt0": 338,
+                        "splt1": 85
+                    },
+                    "width": 550
+                },
+                "name": "IfElse",
+                "node_enable": true
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 1071,
+                "y": 567
+            }
+        },
+        {
+            "id": "{11b383b5-ca79-46d8-b382-f0aef43621e9}",
+            "model": {
+                "name": "ButtonRun"
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 336,
+                "y": 294
+            }
+        },
+        {
+            "id": "{2d3b6b7c-5b4b-48d0-8093-37ee4a20b01d}",
+            "model": {
+                "height": 380,
+                "name": "Debug",
+                "output_h": 0,
+                "output_v": 0,
+                "page_index": 2,
+                "payload_h": 0,
+                "payload_v": 0,
+                "width": 544
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 1155,
+                "y": 42
+            }
+        },
+        {
+            "id": "{8934d5d7-6382-4dac-b065-2ba94f367462}",
+            "model": {
+                "mqtt_pub": {
+                    "cert_file": "-",
+                    "host": "broker.emqx.io",
+                    "is_use_cert": false,
+                    "is_use_ssl": false,
+                    "pass": "123456789",
+                    "port": 1883,
+                    "qos": 0,
+                    "send_img": false,
+                    "topic": "birdtrack/esp32/device01/cmd/speaker",
+                    "user": "bird"
+                },
+                "name": "MqttPub",
+                "node_enable": true
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 1387,
+                "y": 589
+            }
+        },
+        {
+            "id": "{cec155f6-ccd2-4152-9b37-cebb1ffb7fb7}",
+            "model": {
+                "data": {
+                    "url": "rtsp://admin:123456789@192.168.1.45:10554/tcp/av0_0"
+                },
+                "name": "UriCam",
+                "node_enable": true
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 532,
+                "y": 304
+            }
+        },
+        {
+            "id": "{a5e752cd-f95b-40ed-bf0d-fef7955ac3a2}",
+            "model": {
+                "height": 307,
+                "name": "Debug",
+                "output_h": 0,
+                "output_v": 0,
+                "page_index": 2,
+                "payload_h": 0,
+                "payload_v": 0,
+                "width": 447
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 342,
+                "y": 475
+            }
+        },
+        {
+            "id": "{68b57a51-0e1c-4279-9621-25d7c7f4c09b}",
+            "model": {
+                "data": {
+                    "comment": "",
+                    "py_ver": "2. Python310",
+                    "script": "# -*- coding: utf-8 -*-\n# ========================================================\n# CiRA CORE\n# DeepDetect Bird Detection -> MQTT -> ESP32\n# ========================================================\n\nimport json\nimport time\nimport paho.mqtt.client as mqtt\n\n# ========================================================\n# MQTT CONFIG\n# ========================================================\n\nMQTT_BROKER = \"broker.emqx.io\"\nMQTT_PORT = 1883\n\nMQTT_TOPIC = \"birdtrack/esp32/device01/detection\"\n\nTARGET_BIRDS = [\n\t\"pigeon\",\n\t\"pigeonscoop\",\n\t\"dove\",\n\t\"wren\"\n]\n\nCOOLDOWN_SEC = 60.0\nNO_BIRD_INTERVAL = 5.0\n\n# ========================================================\n# GLOBAL\n# ========================================================\n\nif \"last_alert_time\" not in globals():\n\tlast_alert_time = 0.0\n\nif \"last_no_bird_time\" not in globals():\n\tlast_no_bird_time = 0.0\n\nif \"mqtt_client\" not in globals():\n\tmqtt_client = None\n\nif \"mqtt_connected\" not in globals():\n\tmqtt_connected = False\n\n# ========================================================\n# MQTT CONNECT\n# ========================================================\n\ndef init_mqtt():\n\n\tglobal mqtt_client\n\tglobal mqtt_connected\n\n\tif mqtt_client is not None:\n\n\t\ttry:\n\t\t\tif mqtt_client.is_connected():\n\t\t\t\tmqtt_connected = True\n\t\t\t\treturn True\n\t\texcept Exception:\n\t\t\tpass\n\n\ttry:\n\n\t\ttry:\n\t\t\tmqtt_client = mqtt.Client(\n\t\t\t\tmqtt.CallbackAPIVersion.VERSION2\n\t\t\t)\n\n\t\texcept AttributeError:\n\t\t\tmqtt_client = mqtt.Client()\n\n\t\tmqtt_client.connect(\n\t\t\tMQTT_BROKER,\n\t\t\tMQTT_PORT,\n\t\t\t60\n\t\t)\n\n\t\tmqtt_client.loop_start()\n\n\t\tmqtt_connected = True\n\n\t\tprint(\"[MQTT] Connected\")\n\n\t\treturn True\n\n\texcept Exception as e:\n\n\t\tmqtt_connected = False\n\n\t\tprint(\"[MQTT] Connection error:\", e)\n\n\t\treturn False\n\n# ========================================================\n# MQTT PUBLISH\n# ========================================================\n\ndef publish_detection(detected, bird_name, action):\n\n\tglobal mqtt_client\n\tglobal mqtt_connected\n\n\tif not mqtt_connected or mqtt_client is None:\n\n\t\tprint(\"[MQTT] Not connected\")\n\t\treturn False\n\n\ttry:\n\n\t\tmessage = {\n\t\t\t\"detected\": bool(detected),\n\t\t\t\"name\": str(bird_name),\n\t\t\t\"action\": str(action)\n\t\t}\n\n\t\tmessage_json = json.dumps(message)\n\n\t\tresult = mqtt_client.publish(\n\t\t\tMQTT_TOPIC,\n\t\t\tmessage_json,\n\t\t\tqos=1\n\t\t)\n\n\t\tresult.wait_for_publish(timeout=3)\n\n\t\tprint(\"[MQTT] Topic:\", MQTT_TOPIC)\n\t\tprint(\"[MQTT] Payload:\", message_json)\n\t\tprint(\"[MQTT] Publish result:\", result.rc)\n\n\t\treturn result.rc == 0\n\n\texcept Exception as e:\n\n\t\tprint(\"[MQTT] Publish error:\", e)\n\n\t\treturn False\n\n# ========================================================\n# READ CiRA CORE PAYLOAD\n# ========================================================\n\ntry:\n\n\tinput_data = payload\n\nexcept NameError:\n\n\tinput_data = None\n\nprint(\"\")\nprint(\"========================================\")\nprint(\"[DEBUG] Input:\", repr(input_data))\nprint(\"========================================\")\n\n# ========================================================\n# DETECTION PARSER\n# ========================================================\n\ndetected = False\nbird_name = \"none\"\nconfidence = 0.0\nbird_count = 0\n\ntry:\n\n\tif isinstance(input_data, dict):\n\n\t\t# ----------------------------------------\n\t\t# DeepDetect data\n\t\t# ----------------------------------------\n\n\t\tdeep = input_data.get(\"DeepDetect\", {})\n\n\t\tif isinstance(deep, dict):\n\n\t\t\tobjects = deep.get(\"objects\", [])\n\t\t\tcounts = deep.get(\"counts\", {})\n\n\t\t\tbird_count = deep.get(\"count\", 0)\n\n\t\t\t# ------------------------------------\n\t\t\t# Check objects\n\t\t\t# ------------------------------------\n\n\t\t\tif isinstance(objects, list):\n\n\t\t\t\tfor obj in objects:\n\n\t\t\t\t\tif not isinstance(obj, dict):\n\t\t\t\t\t\tcontinue\n\n\t\t\t\t\traw_name = obj.get(\"name\", \"\")\n\n\t\t\t\t\tnormalized_name = str(\n\t\t\t\t\t\traw_name\n\t\t\t\t\t).lower().strip()\n\n\t\t\t\t\tobj_confidence = float(\n\t\t\t\t\t\tobj.get(\"confidence\", 0.0)\n\t\t\t\t\t)\n\n\t\t\t\t\tprint(\n\t\t\t\t\t\t\"[DEBUG] Object:\",\n\t\t\t\t\t\tnormalized_name,\n\t\t\t\t\t\t\"Confidence:\",\n\t\t\t\t\t\tobj_confidence\n\t\t\t\t\t)\n\n\t\t\t\t\tif normalized_name in TARGET_BIRDS:\n\n\t\t\t\t\t\tdetected = True\n\n\t\t\t\t\t\tbird_name = normalized_name\n\n\t\t\t\t\t\tconfidence = obj_confidence\n\n\t\t\t\t\t\tbird_count += 0 if bird_count else 1\n\n\t\t\t\t\t\tbreak\n\n\t\t\t# ------------------------------------\n\t\t\t# Fallback: counts\n\t\t\t# ------------------------------------\n\n\t\t\tif not detected and isinstance(counts, dict):\n\n\t\t\t\tfor key, value in counts.items():\n\n\t\t\t\t\tnormalized_name = str(\n\t\t\t\t\t\tkey\n\t\t\t\t\t).lower().strip()\n\n\t\t\t\t\tcount = int(value or 0)\n\n\t\t\t\t\tprint(\n\t\t\t\t\t\t\"[DEBUG] Count:\",\n\t\t\t\t\t\tnormalized_name,\n\t\t\t\t\t\tcount\n\t\t\t\t\t)\n\n\t\t\t\t\tif (\n\t\t\t\t\t\tnormalized_name in TARGET_BIRDS\n\t\t\t\t\t\tand count > 0\n\t\t\t\t\t):\n\n\t\t\t\t\t\tdetected = True\n\n\t\t\t\t\t\tbird_name = normalized_name\n\n\t\t\t\t\t\tbird_count = count\n\n\t\t\t\t\t\tbreak\n\n\t\t# ----------------------------------------\n\t\t# Fallback: flat payload\n\t\t# ----------------------------------------\n\n\t\tif not detected:\n\n\t\t\traw_name = (\n\t\t\t\tinput_data.get(\"name\")\n\t\t\t\tor input_data.get(\"label\")\n\t\t\t\tor input_data.get(\"class\")\n\t\t\t\tor input_data.get(\"class_name\")\n\t\t\t\tor \"\"\n\t\t\t)\n\n\t\t\tnormalized_name = str(\n\t\t\t\traw_name\n\t\t\t).lower().strip()\n\n\t\t\tif normalized_name in TARGET_BIRDS:\n\n\t\t\t\tdetected = True\n\n\t\t\t\tbird_name = normalized_name\n\n\tprint(\"[DEBUG] Bird count:\", bird_count)\n\tprint(\"[DEBUG] Bird name:\", bird_name)\n\tprint(\"[DEBUG] Confidence:\", confidence)\n\tprint(\"[DEBUG] Detected:\", detected)\n\nexcept Exception as e:\n\n\tprint(\"[ERROR] Detection parsing:\", e)\n\n# ========================================================\n# MQTT\n# ========================================================\n\nif init_mqtt():\n\n\tcurrent_time = time.time()\n\n\t# ============================================\n\t# TARGET BIRD DETECTED\n\t# ============================================\n\n\tif detected:\n\n\t\tprint(\"\")\n\t\tprint(\"[BIRD] DETECTED:\", bird_name)\n\t\tprint(\"[BIRD] Count:\", bird_count)\n\t\tprint(\"[BIRD] Confidence:\", confidence)\n\n\t\t# Cooldown\n\t\tif current_time - last_alert_time >= COOLDOWN_SEC:\n\n\t\t\tprint(\"[ACTION] Publish BIRD_DETECTED\")\n\n\t\t\tsuccess = publish_detection(\n\t\t\t\tTrue,\n\t\t\t\tbird_name,\n\t\t\t\t\"BIRD_DETECTED\"\n\t\t\t)\n\n\t\t\tif success:\n\n\t\t\t\tlast_alert_time = current_time\n\n\t\t\t\tprint(\"[SUCCESS] BIRD_DETECTED sent\")\n\n\t\telse:\n\n\t\t\tremaining = COOLDOWN_SEC - (\n\t\t\t\tcurrent_time - last_alert_time\n\t\t\t)\n\n\t\t\tprint(\n\t\t\t\t\"[BIRD] Cooldown: %.1f seconds\"\n\t\t\t\t% remaining\n\t\t\t)\n\n\t# ============================================\n\t# NO TARGET BIRD\n\t# ============================================\n\n\telse:\n\n\t\tprint(\"[BIRD] No target bird\")\n\n\t\tif (\n\t\t\tcurrent_time - last_no_bird_time\n\t\t\t>= NO_BIRD_INTERVAL\n\t\t):\n\n\t\t\tsuccess = publish_detection(\n\t\t\t\tFalse,\n\t\t\t\t\"none\",\n\t\t\t\t\"NO_BIRD\"\n\t\t\t)\n\n\t\t\tif success:\n\n\t\t\t\tlast_no_bird_time = current_time\n\n\t\t\t\tprint(\"[SUCCESS] NO_BIRD sent\")\n\nelse:\n\n\tprint(\"[MQTT] Waiting for connection\")",
+                    "tmp_path": "C:/Users/bank1",
+                    "widget_state": {
+                        "editor_setting": {
+                            "autoComplete": {
+                                "caseSensitivity": true,
+                                "enable": true,
+                                "threshold": 3
+                            },
+                            "indent": {
+                                "enable": true
+                            },
+                            "theme": "Material Dark",
+                            "whitespace": {
+                                "enable": false,
+                                "size": 2
+                            }
+                        },
+                        "splt0": 239,
+                        "splt1": 149
+                    }
+                },
+                "height": 47,
+                "name": "PythonScript",
+                "node_enable": true,
+                "python_code": "# -*- coding: utf-8 -*-\n# ========================================================\n# CiRA CORE\n# DeepDetect Bird Detection -> MQTT -> ESP32\n# ========================================================\n\nimport json\nimport time\nimport paho.mqtt.client as mqtt\n\n# ========================================================\n# MQTT CONFIG\n# ========================================================\n\nMQTT_BROKER = \"broker.emqx.io\"\nMQTT_PORT = 1883\n\nMQTT_TOPIC = \"birdtrack/esp32/device01/detection\"\n\nTARGET_BIRDS = [\n\t\"pigeon\",\n\t\"pigeonscoop\",\n\t\"dove\",\n\t\"wren\"\n]\n\nCOOLDOWN_SEC = 60.0\nNO_BIRD_INTERVAL = 5.0\n\n# ========================================================\n# GLOBAL\n# ========================================================\n\nif \"last_alert_time\" not in globals():\n\tlast_alert_time = 0.0\n\nif \"last_no_bird_time\" not in globals():\n\tlast_no_bird_time = 0.0\n\nif \"mqtt_client\" not in globals():\n\tmqtt_client = None\n\nif \"mqtt_connected\" not in globals():\n\tmqtt_connected = False\n\n# ========================================================\n# MQTT CONNECT\n# ========================================================\n\ndef init_mqtt():\n\n\tglobal mqtt_client\n\tglobal mqtt_connected\n\n\tif mqtt_client is not None:\n\n\t\ttry:\n\t\t\tif mqtt_client.is_connected():\n\t\t\t\tmqtt_connected = True\n\t\t\t\treturn True\n\t\texcept Exception:\n\t\t\tpass\n\n\ttry:\n\n\t\ttry:\n\t\t\tmqtt_client = mqtt.Client(\n\t\t\t\tmqtt.CallbackAPIVersion.VERSION2\n\t\t\t)\n\n\t\texcept AttributeError:\n\t\t\tmqtt_client = mqtt.Client()\n\n\t\tmqtt_client.connect(\n\t\t\tMQTT_BROKER,\n\t\t\tMQTT_PORT,\n\t\t\t60\n\t\t)\n\n\t\tmqtt_client.loop_start()\n\n\t\tmqtt_connected = True\n\n\t\tprint(\"[MQTT] Connected\")\n\n\t\treturn True\n\n\texcept Exception as e:\n\n\t\tmqtt_connected = False\n\n\t\tprint(\"[MQTT] Connection error:\", e)\n\n\t\treturn False\n\n# ========================================================\n# MQTT PUBLISH\n# ========================================================\n\ndef publish_detection(detected, bird_name, action):\n\n\tglobal mqtt_client\n\tglobal mqtt_connected\n\n\tif not mqtt_connected or mqtt_client is None:\n\n\t\tprint(\"[MQTT] Not connected\")\n\t\treturn False\n\n\ttry:\n\n\t\tmessage = {\n\t\t\t\"detected\": bool(detected),\n\t\t\t\"name\": str(bird_name),\n\t\t\t\"action\": str(action)\n\t\t}\n\n\t\tmessage_json = json.dumps(message)\n\n\t\tresult = mqtt_client.publish(\n\t\t\tMQTT_TOPIC,\n\t\t\tmessage_json,\n\t\t\tqos=1\n\t\t)\n\n\t\tresult.wait_for_publish(timeout=3)\n\n\t\tprint(\"[MQTT] Topic:\", MQTT_TOPIC)\n\t\tprint(\"[MQTT] Payload:\", message_json)\n\t\tprint(\"[MQTT] Publish result:\", result.rc)\n\n\t\treturn result.rc == 0\n\n\texcept Exception as e:\n\n\t\tprint(\"[MQTT] Publish error:\", e)\n\n\t\treturn False\n\n# ========================================================\n# READ CiRA CORE PAYLOAD\n# ========================================================\n\ntry:\n\n\tinput_data = payload\n\nexcept NameError:\n\n\tinput_data = None\n\nprint(\"\")\nprint(\"========================================\")\nprint(\"[DEBUG] Input:\", repr(input_data))\nprint(\"========================================\")\n\n# ========================================================\n# DETECTION PARSER\n# ========================================================\n\ndetected = False\nbird_name = \"none\"\nconfidence = 0.0\nbird_count = 0\n\ntry:\n\n\tif isinstance(input_data, dict):\n\n\t\t# ----------------------------------------\n\t\t# DeepDetect data\n\t\t# ----------------------------------------\n\n\t\tdeep = input_data.get(\"DeepDetect\", {})\n\n\t\tif isinstance(deep, dict):\n\n\t\t\tobjects = deep.get(\"objects\", [])\n\t\t\tcounts = deep.get(\"counts\", {})\n\n\t\t\tbird_count = deep.get(\"count\", 0)\n\n\t\t\t# ------------------------------------\n\t\t\t# Check objects\n\t\t\t# ------------------------------------\n\n\t\t\tif isinstance(objects, list):\n\n\t\t\t\tfor obj in objects:\n\n\t\t\t\t\tif not isinstance(obj, dict):\n\t\t\t\t\t\tcontinue\n\n\t\t\t\t\traw_name = obj.get(\"name\", \"\")\n\n\t\t\t\t\tnormalized_name = str(\n\t\t\t\t\t\traw_name\n\t\t\t\t\t).lower().strip()\n\n\t\t\t\t\tobj_confidence = float(\n\t\t\t\t\t\tobj.get(\"confidence\", 0.0)\n\t\t\t\t\t)\n\n\t\t\t\t\tprint(\n\t\t\t\t\t\t\"[DEBUG] Object:\",\n\t\t\t\t\t\tnormalized_name,\n\t\t\t\t\t\t\"Confidence:\",\n\t\t\t\t\t\tobj_confidence\n\t\t\t\t\t)\n\n\t\t\t\t\tif normalized_name in TARGET_BIRDS:\n\n\t\t\t\t\t\tdetected = True\n\n\t\t\t\t\t\tbird_name = normalized_name\n\n\t\t\t\t\t\tconfidence = obj_confidence\n\n\t\t\t\t\t\tbird_count += 0 if bird_count else 1\n\n\t\t\t\t\t\tbreak\n\n\t\t\t# ------------------------------------\n\t\t\t# Fallback: counts\n\t\t\t# ------------------------------------\n\n\t\t\tif not detected and isinstance(counts, dict):\n\n\t\t\t\tfor key, value in counts.items():\n\n\t\t\t\t\tnormalized_name = str(\n\t\t\t\t\t\tkey\n\t\t\t\t\t).lower().strip()\n\n\t\t\t\t\tcount = int(value or 0)\n\n\t\t\t\t\tprint(\n\t\t\t\t\t\t\"[DEBUG] Count:\",\n\t\t\t\t\t\tnormalized_name,\n\t\t\t\t\t\tcount\n\t\t\t\t\t)\n\n\t\t\t\t\tif (\n\t\t\t\t\t\tnormalized_name in TARGET_BIRDS\n\t\t\t\t\t\tand count > 0\n\t\t\t\t\t):\n\n\t\t\t\t\t\tdetected = True\n\n\t\t\t\t\t\tbird_name = normalized_name\n\n\t\t\t\t\t\tbird_count = count\n\n\t\t\t\t\t\tbreak\n\n\t\t# ----------------------------------------\n\t\t# Fallback: flat payload\n\t\t# ----------------------------------------\n\n\t\tif not detected:\n\n\t\t\traw_name = (\n\t\t\t\tinput_data.get(\"name\")\n\t\t\t\tor input_data.get(\"label\")\n\t\t\t\tor input_data.get(\"class\")\n\t\t\t\tor input_data.get(\"class_name\")\n\t\t\t\tor \"\"\n\t\t\t)\n\n\t\t\tnormalized_name = str(\n\t\t\t\traw_name\n\t\t\t).lower().strip()\n\n\t\t\tif normalized_name in TARGET_BIRDS:\n\n\t\t\t\tdetected = True\n\n\t\t\t\tbird_name = normalized_name\n\n\tprint(\"[DEBUG] Bird count:\", bird_count)\n\tprint(\"[DEBUG] Bird name:\", bird_name)\n\tprint(\"[DEBUG] Confidence:\", confidence)\n\tprint(\"[DEBUG] Detected:\", detected)\n\nexcept Exception as e:\n\n\tprint(\"[ERROR] Detection parsing:\", e)\n\n# ========================================================\n# MQTT\n# ========================================================\n\nif init_mqtt():\n\n\tcurrent_time = time.time()\n\n\t# ============================================\n\t# TARGET BIRD DETECTED\n\t# ============================================\n\n\tif detected:\n\n\t\tprint(\"\")\n\t\tprint(\"[BIRD] DETECTED:\", bird_name)\n\t\tprint(\"[BIRD] Count:\", bird_count)\n\t\tprint(\"[BIRD] Confidence:\", confidence)\n\n\t\t# Cooldown\n\t\tif current_time - last_alert_time >= COOLDOWN_SEC:\n\n\t\t\tprint(\"[ACTION] Publish BIRD_DETECTED\")\n\n\t\t\tsuccess = publish_detection(\n\t\t\t\tTrue,\n\t\t\t\tbird_name,\n\t\t\t\t\"BIRD_DETECTED\"\n\t\t\t)\n\n\t\t\tif success:\n\n\t\t\t\tlast_alert_time = current_time\n\n\t\t\t\tprint(\"[SUCCESS] BIRD_DETECTED sent\")\n\n\t\telse:\n\n\t\t\tremaining = COOLDOWN_SEC - (\n\t\t\t\tcurrent_time - last_alert_time\n\t\t\t)\n\n\t\t\tprint(\n\t\t\t\t\"[BIRD] Cooldown: %.1f seconds\"\n\t\t\t\t% remaining\n\t\t\t)\n\n\t# ============================================\n\t# NO TARGET BIRD\n\t# ============================================\n\n\telse:\n\n\t\tprint(\"[BIRD] No target bird\")\n\n\t\tif (\n\t\t\tcurrent_time - last_no_bird_time\n\t\t\t>= NO_BIRD_INTERVAL\n\t\t):\n\n\t\t\tsuccess = publish_detection(\n\t\t\t\tFalse,\n\t\t\t\t\"none\",\n\t\t\t\t\"NO_BIRD\"\n\t\t\t)\n\n\t\t\tif success:\n\n\t\t\t\tlast_no_bird_time = current_time\n\n\t\t\t\tprint(\"[SUCCESS] NO_BIRD sent\")\n\nelse:\n\n\tprint(\"[MQTT] Waiting for connection\")",
+                "width": 75
+            },
+            "ngo": {
+                "comment": {
+                    "data": "",
+                    "show": false
+                }
+            },
+            "position": {
+                "fix": false,
+                "x": 988,
+                "y": 209
+            }
+        }
+    ],
+    "scene_data": {
+        "flow_view_fix": false,
+        "flow_view_pos_x": -29.172439372189274,
+        "flow_view_pos_y": -13.561886616074162,
+        "flow_view_zoom_factor": 0.8264462809917359,
+        "scene_version": 1
+    }
+}
